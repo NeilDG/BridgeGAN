@@ -70,7 +70,7 @@ class COCOSharedDis(nn.Module):
         return outs_A, outs_B
 
 
-class COCODis_triple(nn.Module):
+class COCODis_Dis_triple(nn.Module):
     def __init__(self, params):
         super(COCODis_triple, self).__init__()
         ch = params['ch']
@@ -151,14 +151,14 @@ def run():
     x_b = Variable(torch.FloatTensor(4, 3, 320, 192), requires_grad=False).cuda()
     x_c = Variable(torch.FloatTensor(4, 3, 320, 192), requires_grad=False).cuda()
     a, b, c, d, e,f, h,g,w, shared = COCOResGen_test(x_a, x_b,x_c)
-    print "x_C based tensor:"
-    print h.size()
+    print("x_C based tensor:")
+    print(h.size())
     # for the Dis
 
     COCODis_test = COCODis_triple(params).cuda()
     # print COCODis_test
     image_a, image_b, image_c = COCODis_test(x_a, x_b, x_c,x_c)
-    print image_a[0].size()
+    print(image_a[0].size())
 
 class COCOResGen_triple(nn.Module):
     def __init__(self, params):

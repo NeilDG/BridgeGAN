@@ -58,7 +58,7 @@ def feature_covariance_mat(n, d):
 
     tmp = ones_t.matmul(d)
     covariance_mat = (d.t().matmul(d) - (tmp.t().matmul(tmp) / n)) / (n)
-    print covariance_mat.size()
+    print(covariance_mat.size())
     return covariance_mat
 
 

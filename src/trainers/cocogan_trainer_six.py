@@ -2,7 +2,7 @@
  
    CC BY-NC-ND 4.0 license   
 """
-from cocogan_nets_six import *
+from trainers import cocogan_nets_six
 import numpy as np
 from init import *
 from helpers import get_model_list, _compute_fake_acc, _compute_true_acc
@@ -17,8 +17,10 @@ class COCOGANTrainer_six(nn.Module):
     super(COCOGANTrainer_six, self).__init__()
     lr = hyperparameters['lr']
     # Initiate the networks
-    exec( 'self.dis = %s(hyperparameters[\'dis\'])' % hyperparameters['dis']['name'])
-    exec( 'self.gen = %s(hyperparameters[\'gen\'])' % hyperparameters['gen']['name'] )
+    self.dis = cocogan_nets_six.COCODis_six(hyperparameters['dis'])
+    self.gen = cocogan_nets_six.COCOResGen_six(hyperparameters['gen'])
+    #exec( 'self.dis = %s(hyperparameters[\'dis\'])' % hyperparameters['dis']['name'])
+    #exec( 'self.gen = %s(hyperparameters[\'gen\'])' % hyperparameters['gen']['name'] )
     # Setup the optimizers
     self.dis_opt = torch.optim.Adam(self.dis.parameters(), lr=lr, betas=(0.5, 0.999), weight_decay=0.0001)
     self.gen_opt = torch.optim.Adam(self.gen.parameters(), lr=lr, betas=(0.5, 0.999), weight_decay=0.0001)
@@ -77,10 +79,11 @@ class COCOGANTrainer_six(nn.Module):
                  hyperparameters['kl_direct_link_w'] * (enc_loss + enc_loss) + \
                  hyperparameters['kl_cycle_link_w'] * (enc_bab_loss + enc_aba_loss)
     total_loss.backward()
-    print "total_loss: ", total_loss.data.cpu().numpy()[0]
-    print "l1_loss_a: ", ll_loss_a.data.cpu().numpy()[0]
-    print "l1_loss_b: ", ll_loss_b.data.cpu().numpy()[0]
-    print "ll_loss_ab: ", self.ll_loss_criterion_a(x_ab, images_b).data.cpu().numpy()[0]
+    print("total_loss: ", total_loss.data.cpu().numpy()[0])
+    print("l1_loss_a: ", ll_loss_a.data.cpu().numpy()[0])
+    print("l1_loss_b: ", ll_loss_b.data.cpu().numpy()[0])
+    print("ll_loss_ab: ", self.ll_loss_criterion_a(x_ab, images_b).data.cpu().numpy()[0])
+    
     self.gen_opt.step()
     self.gen_enc_loss = enc_loss.data.cpu().numpy()[0]
     self.gen_enc_bab_loss = enc_bab_loss.data.cpu().numpy()[0]
@@ -154,9 +157,9 @@ class COCOGANTrainer_six(nn.Module):
     loss.backward()
     self.dis_opt.step()
     self.dis_loss = loss.data.cpu().numpy()[0]
-    print "dis_loss: ", self.dis_loss
-    print "dis_true_acc: ", 0.5*(true_a_acc + true_b_acc)
-    print "dis_fake_acc: ", 0.5*(fake_a_acc + fake_b_acc)
+    print("dis_loss: ", self.dis_loss)
+    print("dis_true_acc: ", 0.5*(true_a_acc + true_b_acc))
+    print("dis_fake_acc: ", 0.5*(fake_a_acc + fake_b_acc))
     return
 
   def assemble_outputs(self, images_a, images_b, network_outputs):

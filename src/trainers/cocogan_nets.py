@@ -270,8 +270,8 @@ class COCOResGen2(nn.Module):
     self.decode_B = nn.Sequential(*decB)
 
   def forward(self, x_A, x_B):
-    print x_A.data.cpu()[0]
-    print ">>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<,"
+    print(x_A.data.cpu()[0])
+    print(">>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<,")
     out = torch.cat((self.encode_A(x_A), self.encode_B(x_B)), 0)
     # print out.data.cpu()[0]
     shared = self.enc_shared(out)

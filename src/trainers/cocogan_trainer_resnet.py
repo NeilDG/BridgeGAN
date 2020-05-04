@@ -90,9 +90,9 @@ class COCOGANTrainer_resnet(nn.Module):
                  hyperparameters['kl_direct_link_w'] * (enc_loss + enc_loss) + \
                  hyperparameters['kl_cycle_link_w'] * (enc_bab_loss + enc_aba_loss)
     total_loss.backward()
-    print "total_loss: ", total_loss.data.cpu().numpy()[0]
-    print "l1_loss_a: ", ll_loss_a.data.cpu().numpy()[0]
-    print "l1_loss_b: ", ll_loss_b.data.cpu().numpy()[0]
+    print("total_loss: ", total_loss.data.cpu().numpy()[0])
+    print("l1_loss_a: ", ll_loss_a.data.cpu().numpy()[0])
+    print("l1_loss_b: ", ll_loss_b.data.cpu().numpy()[0])
     self.gen_opt.step()
     self.gen_enc_loss = enc_loss.data.cpu().numpy()[0]
     self.gen_enc_bab_loss = enc_bab_loss.data.cpu().numpy()[0]
@@ -158,9 +158,9 @@ class COCOGANTrainer_resnet(nn.Module):
     loss.backward()
     self.dis_opt.step()
     self.dis_loss = loss.data.cpu().numpy()[0]
-    print "dis_loss: ", self.dis_loss
-    print "dis_true_acc: ", 0.5*(true_a_acc + true_b_acc)
-    print "dis_fake_acc: ", 0.5*(fake_a_acc + fake_b_acc)
+    print("dis_loss: ", self.dis_loss)
+    print("dis_true_acc: ", 0.5*(true_a_acc + true_b_acc))
+    print("dis_fake_acc: ", 0.5*(fake_a_acc + fake_b_acc))
     return
 
   def assemble_outputs(self, images_a, images_b, network_outputs):

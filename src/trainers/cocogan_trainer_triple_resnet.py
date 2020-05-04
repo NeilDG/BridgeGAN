@@ -3,6 +3,7 @@
    CC BY-NC-ND 4.0 license
 """
 from cocogan_nets_triple_resnet import *
+from trainers import cocogan_nets_triple_resnet
 import numpy as np
 from init import *
 from helpers import get_model_list, _compute_fake_acc, _compute_true_acc
@@ -18,8 +19,10 @@ class COCOGANTrainer_triple_res(nn.Module):
     super(COCOGANTrainer_triple_res, self).__init__()
     lr = hyperparameters['lr']
     # Initiate the networks
-    exec( 'self.dis = %s(hyperparameters[\'dis\'])' % hyperparameters['dis']['name'])
-    exec( 'self.gen = %s(hyperparameters[\'gen\'])' % hyperparameters['gen']['name'] )
+    self.dis = cocogan_nets_triple_resnet.COCODis_triple_res(hyperparameters['dis'])
+    self.gen = cocogan_nets_triple_resnet.COCOResGen_triple_res(hyperparameters['gen'])
+    #exec( 'self.dis = %s(hyperparameters[\'dis\'])' % hyperparameters['dis']['name'])
+    #exec( 'self.gen = %s(hyperparameters[\'gen\'])' % hyperparameters['gen']['name'] )
     # Setup the optimizers
     self.dis_opt = torch.optim.Adam(self.dis.parameters(), lr=lr, betas=(0.5, 0.999), weight_decay=0.0001)
     self.gen_opt = torch.optim.Adam(self.gen.parameters(), lr=lr, betas=(0.5, 0.999), weight_decay=0.0001)
@@ -33,6 +36,7 @@ class COCOGANTrainer_triple_res(nn.Module):
     self.ll_loss_criterion_c = torch.nn.L1Loss()
 
     self.resnet50 = resnet50(pretrained=True).cuda()
+    #self.resnet50 = models.resnet50(pretrained = True).cuda()
 
 
   def _compute_kl(self, mu):
@@ -73,7 +77,7 @@ class COCOGANTrainer_triple_res(nn.Module):
     x_bab_1, x_bab_2 = self.resnet50(x_bab)
 
     outs_a, outs_b, outs_c, outs_d = self.dis(x_ba,x_ab, x_bc, x_cb)
-    for it, (out_a, out_b, out_c, out_d) in enumerate(itertools.izip(outs_a, outs_b, outs_c, outs_d)):
+    for it, (out_a, out_b, out_c, out_d) in enumerate(zip(outs_a, outs_b, outs_c, outs_d)):
       outputs_a = nn.functional.sigmoid(out_a)
       outputs_b = nn.functional.sigmoid(out_b)
 
@@ -175,33 +179,33 @@ class COCOGANTrainer_triple_res(nn.Module):
 
 
 
-    print "total_loss: ", total_loss.data.cpu().numpy()[0]
-    print "l1_loss_a: ", ll_loss_a.data.cpu().numpy()[0]
-    print "l1_loss_b: ", ll_loss_b.data.cpu().numpy()[0]
-    print "ll_loss_c: ", ll_loss_c.data.cpu().numpy()[0]
-    print "ll_loss_ab: ", self.ll_loss_criterion_a(x_ab, images_b).data.cpu().numpy()[0]
-    print "ll_loss_cb: ", self.ll_loss_criterion_a(x_cb, images_b).data.cpu().numpy()[0]
+    print("Total gen loss: ", total_loss.item())
+    # print("l1_loss_a: ", ll_loss_a.item())
+    # print("l1_loss_b: ", ll_loss_b.item())
+    # print("ll_loss_c: ", ll_loss_c.item())
+    # print("ll_loss_ab: ", self.ll_loss_criterion_a(x_ab, images_b).item())
+    # print("ll_loss_cb: ", self.ll_loss_criterion_a(x_cb, images_b).item())
     # print "ll_loss_d: ", l1_loss
     self.gen_opt.step()
-    self.gen_enc_loss = enc_loss.data.cpu().numpy()[0]
-    self.gen_enc_bab_loss = enc_bab_loss.data.cpu().numpy()[0]
-    self.gen_enc_aba_loss = enc_aba_loss.data.cpu().numpy()[0]
-    self.gen_enc_cbc_loss = enc_cbc_loss.data.cpu().numpy()[0]
-    self.gen_enc_bcb_loss = enc_bcb_loss.data.cpu().numpy()[0]
+    self.gen_enc_loss = enc_loss.item()
+    self.gen_enc_bab_loss = enc_bab_loss.item()
+    self.gen_enc_aba_loss = enc_aba_loss.item()
+    self.gen_enc_cbc_loss = enc_cbc_loss.item()
+    self.gen_enc_bcb_loss = enc_bcb_loss.item()
 
-    self.gen_ad_loss_a = ad_loss_a.data.cpu().numpy()[0]
-    self.gen_ad_loss_b = ad_loss_b.data.cpu().numpy()[0]
-    self.gen_ad_loss_c = ad_loss_c.data.cpu().numpy()[0]
+    self.gen_ad_loss_a = ad_loss_a.data.item()
+    self.gen_ad_loss_b = ad_loss_b.data.item()
+    self.gen_ad_loss_c = ad_loss_c.data.item()
 
-    self.gen_ll_loss_a = ll_loss_a.data.cpu().numpy()[0]
-    self.gen_ll_loss_b = ll_loss_b.data.cpu().numpy()[0]
-    self.gen_ll_loss_c = ll_loss_c.data.cpu().numpy()[0]
+    self.gen_ll_loss_a = ll_loss_a.data.item()
+    self.gen_ll_loss_b = ll_loss_b.data.item()
+    self.gen_ll_loss_c = ll_loss_c.data.item()
 
 
-    self.gen_ll_loss_aba = ll_loss_aba.data.cpu().numpy()[0]
-    self.gen_ll_loss_bab = ll_loss_bab.data.cpu().numpy()[0]
-    self.gen_ll_loss_cbc = l1_loss_cbc.data.cpu().numpy()[0]
-    self.gen_ll_loss_bcb = l1_loss_bcb.data.cpu().numpy()[0]
+    self.gen_ll_loss_aba = ll_loss_aba.data.item()
+    self.gen_ll_loss_bab = ll_loss_bab.data.item()
+    self.gen_ll_loss_cbc = l1_loss_cbc.data.item()
+    self.gen_ll_loss_bcb = l1_loss_bcb.data.item()
 
     """
         #test all loss:
@@ -221,7 +225,7 @@ class COCOGANTrainer_triple_res(nn.Module):
 
 
 
-    self.gen_total_loss = total_loss.data.cpu().numpy()[0]
+    self.gen_total_loss = total_loss.item()
     return (x_aa, x_ba, x_ca,  x_ab, x_bb, x_cb, x_aba, x_bab, x_bcb, x_cbc)
 
   def dis_update(self, images_a, images_b, images_c, hyperparameters):
@@ -240,7 +244,7 @@ class COCOGANTrainer_triple_res(nn.Module):
 
     # res_true_a, res_true_b = self.dis(images_a,images_b)
     # res_fake_a, res_fake_b = self.dis(x_ba, x_ab)
-    for it, (this_a, this_b, this_c, this_d) in enumerate(itertools.izip(res_a, res_b, res_c, res_d)):
+    for it, (this_a, this_b, this_c, this_d) in enumerate(zip(res_a, res_b, res_c, res_d)):
       out_a = nn.functional.sigmoid(this_a)
       out_b = nn.functional.sigmoid(this_b)
 
@@ -309,12 +313,13 @@ class COCOGANTrainer_triple_res(nn.Module):
     loss = hyperparameters['gan_w'] * ( ad_loss_a + ad_loss_b + ad_loss_c + ad_loss_d )
     loss.backward()
     self.dis_opt.step()
-    self.dis_loss = loss.data.cpu().numpy()[0]
-    print "dis_loss: ", self.dis_loss
-    print "dis_true_acc(a2b): ", 0.5 * (true_a_acc + true_b_acc)
-    print "dis_fake_acc(a2b): ", 0.5 * (fake_a_acc + fake_b_acc)
-    print "dis_true_acc(c2b): ", 0.5 * (true_c_acc + true_d_acc)
-    print "dis_fake_acc(c2b): ", 0.5 * (fake_c_acc + fake_d_acc)
+    
+    self.dis_loss = loss.item()
+    print("Total disc loss: ", self.dis_loss)
+    # print("dis_true_acc(a2b): ", 0.5 * (true_a_acc + true_b_acc))
+    # print("dis_fake_acc(a2b): ", 0.5 * (fake_a_acc + fake_b_acc))
+    # print("dis_true_acc(c2b): ", 0.5 * (true_c_acc + true_d_acc))
+    # print("dis_fake_acc(c2b): ", 0.5 * (fake_c_acc + fake_d_acc))
     return
 
   def assemble_outputs(self, images_a, images_b, network_outputs):

@@ -195,16 +195,16 @@ def run():
     x_a = Variable(torch.FloatTensor(4, 3, 320, 192), requires_grad=False).cuda()
     x_b = Variable(torch.FloatTensor(4, 6, 320, 192), requires_grad=False).cuda()
     a, b, c, d, e = COCOResGen_test(x_a, x_b)
-    print e.size()
+    print(e.size())
     b2a = COCOResGen_test.forward_b2a(x_b)
-    print b2a[0].size()
+    print(b2a[0].size())
     a2b = COCOResGen_test.forward_a2b(x_a)
-    print a2b[0].size()
+    print (a2b[0].size())
 
     dis_six = COCODis_six(params).cuda()
     six_A, six_B = dis_six(x_a, x_b)
-    print six_A[0].size()
-    print six_B[0].size()
+    print(six_A[0].size())
+    print(six_B[0].size())
 
 
 class COCOResGen2(nn.Module):

@@ -12,9 +12,14 @@ import torchvision
 import itertools
 from common import *
 import tensorboard
+import torchvision.utils as vutils
+import numpy as np
+import matplotlib.pyplot as plt
 # from tensorboard import summary
 from optparse import OptionParser
 
+from loaders import dataset_loader
+import constants
 # for model parallel
 
 
@@ -31,18 +36,40 @@ def main(argv):
 
   # Load experiment setting
   assert isinstance(opts, object)
+  print(opts.config)
   config = NetConfig(opts.config)
 
   batch_size = config.hyperparameters['batch_size']
   max_iterations = config.hyperparameters['max_iterations']
 
-  train_loader_a = get_data_loader(config.datasets['train_a'], batch_size) # for homo
-  train_loader_b = get_data_loader(config.datasets['train_b'], batch_size) # for gt
-  train_loader_c = get_data_loader(config.datasets['train_c'], batch_size) # for new
-
-  trainer = []
-  exec ("trainer=%s(config.hyperparameters)" % config.hyperparameters['trainer'])
-  # trainer = COCOGANTrainer_triple(config.hyperparameters)
+  # train_loader_a = get_data_loader(config.datasets['train_a'], batch_size) # for homo
+  # train_loader_b = get_data_loader(config.datasets['train_b'], batch_size) # for gt
+  # train_loader_c = get_data_loader(config.datasets['train_c'], batch_size) # for new
+  dataloader = dataset_loader.load_dataset(batch_size, -1)
+  # Plot some training images
+  name_batch, normal_batch, homog_batch, topdown_batch = next(iter(dataloader))
+  plt.figure(figsize=(constants.FIG_SIZE,constants.FIG_SIZE))
+  plt.axis("off")
+  plt.title("Training - Normal Images")
+  plt.imshow(np.transpose(vutils.make_grid(normal_batch.cuda()[:batch_size], nrow = 16, padding=2, normalize=True).cpu(),(1,2,0)))
+  plt.show()
+    
+  plt.figure(figsize=(constants.FIG_SIZE,constants.FIG_SIZE))
+  plt.axis("off")
+  plt.title("Training - Homog Images")
+  plt.imshow(np.transpose(vutils.make_grid(homog_batch.cuda()[:batch_size], nrow = 16, padding=2, normalize=True).cpu(),(1,2,0)))
+  plt.show()
+    
+  plt.figure(figsize=(constants.FIG_SIZE,constants.FIG_SIZE))
+  plt.axis("off")
+  plt.title("Training - Normal Images")
+  plt.imshow(np.transpose(vutils.make_grid(topdown_batch.cuda()[:batch_size], nrow = 16, padding=2, normalize=True).cpu(),(1,2,0)))
+  plt.show()
+  
+  
+  trainer = None
+  #exec ("trainer=%s(config.hyperparameters)" % config.hyperparameters['trainer'])
+  trainer = COCOGANTrainer_triple_res(config.hyperparameters)
   # Check if resume training
   iterations = 0
   if opts.resume == 1:
@@ -59,12 +86,12 @@ def main(argv):
   image_directory, snapshot_directory = prepare_snapshot_and_image_folder(config.snapshot_prefix, iterations, config.image_save_iterations)
 
   for ep in range(0, MAX_EPOCHS):
-    for it, (images_a, images_b, images_c) in enumerate(itertools.izip(train_loader_a,train_loader_b, train_loader_c)):
-      if images_a.size(0) != batch_size or images_b.size(0) != batch_size or images_c.size(0) != batch_size:
-        continue
-      images_a = Variable(images_a.cuda())
-      images_b = Variable(images_b.cuda())
-      images_c = Variable(images_c.cuda())
+    for it, (name, normal_img, homog_img, topdown_img) in enumerate(dataloader, 0):
+      # if images_a.size(0) != batch_size or images_b.size(0) != batch_size or images_c.size(0) != batch_size:
+      #   continue
+      images_a = Variable(homog_img.cuda())
+      images_b = Variable(topdown_img.cuda())
+      images_c = Variable(normal_img.cuda())
 
       # Main training code
       trainer.dis_update(images_a, images_b, images_c,  config.hyperparameters)

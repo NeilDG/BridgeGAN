@@ -9,3 +9,4 @@ bird_kitti_*
 *.zip
 *.pkl
 *.pyc
+.spyproject/

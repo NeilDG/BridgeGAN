@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch
 import math
 from torch.autograd import Variable
+import torchvision.models as models
 # import torch.utils.model_zoo as model_zoo
 
 
@@ -189,8 +190,8 @@ def resnet50(pretrained=False, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    if pretrained:
-        model.load_state_dict(torch.load(model_urls['resnet50']))
+    # if pretrained:
+    #     model.load_state_dict(torch.load(model_urls['resnet50']))
     return model
 
 if __name__ == '__main__':

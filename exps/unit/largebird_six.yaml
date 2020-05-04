@@ -5,7 +5,7 @@ train:
   image_save_iterations: 200 # How often do you want to save output images during training
   image_display_iterations: 50
   display: 1 # How often do you want to log the training stats
-  snapshot_prefix: /mnt/lustre/zhuxinge/UNIT_Bird/src/outputs/unit_large_six/ # Where do you want to save the outputs
+  snapshot_prefix: "D:/Users/delgallegon/Documents/GithubProjects/BridgeGAN/checkpt" # Where do you want to save the outputs
   hyperparameters:
     trainer: COCOGANTrainer_six
     para: 0
@@ -17,12 +17,12 @@ train:
     kl_cycle_link_w: 0.1  # weight on the cycle L1 reconstruction loss
     gan_c: 1
     gan_w: 10              # weight on the adversarial loss
-    batch_size: 4          # image batch size per domain
+    batch_size: 8          # image batch size per domain
     max_iterations: 500000 # maximum number of training epochs
     gen:
       name: COCOResGen_six
       ch: 64               # base channel number per layer
-      input_dim_a: 6
+      input_dim_a: 3
       input_dim_b: 3
       input_dim_c: 3
       n_enc_front_blk: 3
@@ -34,7 +34,7 @@ train:
     dis:
       name: COCODis_six
       ch: 64
-      input_dim_a: 6
+      input_dim_a: 3
       input_dim_b: 3
       input_dim_c: 3
       n_layer: 6
