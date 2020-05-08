@@ -5,7 +5,7 @@ train:
   image_save_iterations: 200 # How often do you want to save output images during training
   image_display_iterations: 50
   display: 1 # How often do you want to log the training stats
-  snapshot_prefix: "D:/Users/delgallegon/Documents/GithubProjects/BridgeGAN/checkpt" # Where do you want to save the outputs
+  snapshot_prefix: "D:/Users/delgallegon/Documents/GithubProjects/BridgeGAN/checkpt/checkpt" # Where do you want to save the outputs
   hyperparameters:
     trainer: COCOGANTrainer_six
     para: 0
